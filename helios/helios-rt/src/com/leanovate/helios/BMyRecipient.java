@@ -36,6 +36,7 @@ public class BMyRecipient extends BAlarmRecipient {
   public static final Type TYPE = Sys.loadType(BMyRecipient.class);
 
 /*+ ------------ END BAJA AUTO GENERATED CODE -------------- +*/
+  // Constants and configuration parameters
 
   private static final String USER_AGENT = "niagara-leanovate/1.0";
 
@@ -51,8 +52,11 @@ public class BMyRecipient extends BAlarmRecipient {
   private static final int ERROR = -1;
   
 /* START sendGET */
+  // Method to send a GET request to Freshdesk API
+
   private static void sendGET() throws IOException
-  
+      // ... Implementation to send a GET request and handle the response
+
   {
     URL obj = new URL(GET_URL);
     HttpURLConnection con = (HttpURLConnection) obj.openConnection();
@@ -92,10 +96,14 @@ public class BMyRecipient extends BAlarmRecipient {
   }
 /* END sendGET */
   
-  /* START searchTicket */  
+  /* START searchTicket - Method to search for an existing ticket based on pointName */
+    // Method to search for an existing ticket based on pointName
+
   private static int searchTicket(String pointName) throws IOException
   
   {
+    // ... Implementation to search for an existing ticket and return its ID
+
     URL obj = new URL(GET_URL);
     int retCode = OK;
     
@@ -136,9 +144,13 @@ public class BMyRecipient extends BAlarmRecipient {
   }
 /* END searchTicket */
   
-/* START sendPOST */
+/* START sendPOST - Method to send a POST request to create a new ticket */
+    // Method to send a POST request to create a new ticket
+
   private static int sendPOST(String pointName, int priority) throws IOException 
-  {   
+  {  
+        // ... Implementation to send a POST request to create a new ticket
+
     int retCode = OK;
     URL obj = new URL(POST_URL);
     HttpURLConnection con = (HttpURLConnection) obj.openConnection();
@@ -208,13 +220,17 @@ public class BMyRecipient extends BAlarmRecipient {
       System.out.println(response.toString());
       return retCode;
   }  
-/* END sendPOST */  
+/* END sendPOST */
   
+/* handleAlarm - This method is called when an alarm is triggered */
+    // This method is called when an alarm is triggered
+
   @Override
   public void handleAlarm(BAlarmRecord bAlarmRecord) {
 
     System.out.print("LeanovateHeliosRx: HndlAlm" + "AlmRec:" + bAlarmRecord + "\n"); 
-
+    
+    // Check if alarm is in normal state
     if (bAlarmRecord.getSourceState().getOrdinal() == BSourceState.NORMAL)
     {
     	System.out.print("LeanovateHeliosRx: HndlAlm: " + "Normal State. Resolve Ticket... \n");
@@ -222,7 +238,8 @@ public class BMyRecipient extends BAlarmRecipient {
     	// find if ticket was created earlier when alarm was raised, for this point name. if yes, update the
     	// ticket to RESOLVED. unique key to search tkts is pointName
     	try
-    	{
+    	{          
+        // Search for existing ticket for the pointName
     	    int tktId = searchTicket(bAlarmRecord.getSource().encodeToString());
     	    if (tktId != INVALID_TICKET_ID)
     	    {
@@ -236,6 +253,8 @@ public class BMyRecipient extends BAlarmRecipient {
     	      // ticket for this point is not present now. either it was not created when alarm happenned, or 
     	      // has already been resolved or deleted in ticketing system. log and move on. nothing to do. 
     	      // ideally this should not happen
+            // Ticket doesn't exist, log and move on
+
             return;
     	    }
     	}
@@ -250,6 +269,7 @@ public class BMyRecipient extends BAlarmRecipient {
       try
       {
           // create ticket with unique ID as pointName (TODO: confirm if this is unique in setup)
+          // Create a new ticket
           int result = sendPOST(bAlarmRecord.getSource().encodeToString(), bAlarmRecord.getPriority());
           if (result != OK)
           {
